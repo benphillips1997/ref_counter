@@ -3,11 +3,32 @@
 
 using namespace std;
 
-class my_string {
+template <class C>
+class RefCounter
+{
 private:
-    char *pStr;
     int refCount;
     int *pRefCount = &refCount;
+public:
+    RefCounter() : refCount(1) {}
+
+    void IncrementRef(C const& s) 
+    { 
+        pRefCount = s.pRefCount;
+        *pRefCount += 1;
+    }
+    void DecrementRef() { *pRefCount -= 1; }
+
+    int GetRefCount() const { return *pRefCount; }
+};
+
+
+class my_string : public RefCounter<my_string>
+{
+private:
+    char *pStr;
+    /*int refCount;
+    int *pRefCount = &refCount;*/
 public:
     my_string();
     my_string(const char* s);
