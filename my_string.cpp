@@ -1,79 +1,61 @@
-/*
-    my_string methods
-*/
-
-// default constructor
-my_string::my_string()
-{
-    //refCount = 1;
-    pStr = new char;
-}
+#include "my_string.hpp"
 
 // normal constructor
 my_string::my_string(const char* s)
 {
-    //refCount = 1;
-    pStr = new char[getLength(s)];
+    pStr = new char[getLength(s)]; //allocate memory for pointer
+    //sets each character
     for (int i = 0; i < getLength(s); i++){
-        *(pStr+i) = *(s+i);
+        pStr[i] = s[i];
     }
 }
 
-// copy constructor  
-my_string::my_string(my_string const& s)
+// overload assignment operator
+my_string& my_string::operator=(const my_string& s)
 {
-    pStr = s.pStr;
-    //pRefCount = s.pRefCount;
-    //*pRefCount += 1;
-    IncrementRef(s);
-}
+    // if object is the same or pointing to the same allocated data
+    if (&s == this || s.pStr == pStr) {
+        return *this; 
+    }
 
-// copy operator constructor
-my_string& my_string::operator=(my_string const& s)
-{
     pStr = s.pStr;
-    //pRefCount = s.pRefCount;
-    //*pRefCount += 1;
-    IncrementRef(s);
     return *this;
-}
+} 
 
 // destructor
 my_string::~my_string()
 {
-    assert(GetRefCount() > 0);
-
-    //*pRefCount -= 1;
-    DecrementRef();
-
-    if (GetRefCount() == 0){
-        delete pStr;
-        cout << "Ref count is now: " << GetRefCount() << endl;
-    }
+    //cout << "Destructor called for: ";
+    //print();
 }
 
-char my_string::getChar(const int& i) const
+char my_string::getChar(const int& i)
 {
-    char c = *(pStr+i);
-    return c;
+    assert(i < getLength(pStr));
+    return pStr[i];
 }
 
 void my_string::setChar(const int& i, const char& c)
 {
-    *(pStr+i) = c;
+    assert(i < getLength(pStr));
+    pStr[i] = c;
 }
 
 void my_string::print() const
-{
-    for (int i = 0; *(pStr+i) != '\0'; i++){
-        cout << *(pStr+i);
+{   
+    //print each character to console
+    for (int i = 0; i < getLength(pStr); i++){
+        cout << pStr[i];
     }
-    cout << " [" << GetRefCount() << "]" << endl;
+    cout << endl;
 }
 
 int my_string::getLength(const char* s) const
 {
+    if (s == 0) { return 0; }
+
     int i;
-    for (i = 0; *(s+i) != '\0'; i++) { /* do nothing */}
+    //increment i until null character is reached
+    for (i = 0; s[i] != '\0'; i++) { /* do nothing */ }
     return i;
 }

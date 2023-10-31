@@ -1,92 +1,126 @@
 # ASP_worksheet1
 
+## Task 1
 
+For task 1 I implemented a my_string class and you can find it in the 'my_string.hpp' file. This class contains a pointer to a string as a variable, a default and a normal constructor, a copy constructor, an overloaded assignment operator, and a destructor. It also contains functions to get and set characters from the string, a print function to print the entire string, and get function that would get the length of the string. Some of the function bodies that were only one line are defined here, whereas the rest of them I placed in the 'my_string.cpp' file.
+```c++
+class my_string
+{
+private:
+    char *pStr;
+public:
+    my_string() : pStr(nullptr) {}    //default constructor
+    my_string(const char* s);         //normal constructor
+    my_string(const my_string& s) : pStr(s.pStr) {} //copy constructor
+    my_string& operator=(const my_string& s);       //assignment operator overload
+    ~my_string();                   //destructor
+    
+    char getChar(const int& i);
+    void setChar(const int& i, const char& c);
+    void print() const;
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+    int getLength(const char* str) const;
+};
 ```
-cd existing_repo
-git remote add origin https://gitlab.uwe.ac.uk/b25-phillips/asp_worksheet1.git
-git branch -M main
-git push -uf origin main
+
+If the default constructor is called then a null pointer is assigned, whereas if the normal constructor is called then it will allocate memory equal to the length of the characters  of the passed parameter for the pStr variable. Then it will copy each letter from the parameter passed to the pStr variable, as you can see below.
+```c++
+my_string::my_string(const char* s)
+{
+    pStr = new char[getLength(s)]; //allocate memory for pointer
+    //sets each character
+    for (int i = 0; i < getLength(s); i++){
+        pStr[i] = s[i];
+    }
+}
 ```
 
-## Integrate with your tools
+The copy constructor will be called when a my_string object is created and assigned to an existing my_string object. It copies the pStr pointer from the existing object that is passed as the parameter and assigns it to the pStr pointer for this object that is created.
 
-- [ ] [Set up project integrations](https://gitlab.uwe.ac.uk/b25-phillips/asp_worksheet1/-/settings/integrations)
+The overload assignment operator will be called when an existing object of my_string is assigned to another. If the objects are the same or have the same reference to their pStr variable then it wil return the object and nothing will happen. Otherwise the pStr reference will be copied over and the object will be returned.
+```c++
+// overload assignment operator
+my_string& my_string::operator=(const my_string& s)
+{
+    // if object is the same or pointing to the same allocated data
+    if (&s == this || s.pStr == pStr) {
+        return *this; 
+    }
 
-## Collaborate with your team
+    pStr = s.pStr;
+    return *this;
+} 
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+The getChar and setChar functions will return the character or change the character at the specified index.
+```c++
+char my_string::getChar(const int& i)
+{
+    assert(i < getLength(pStr));
+    return pStr[i];
+}
 
-## Test and Deploy
+void my_string::setChar(const int& i, const char& c)
+{
+    assert(i < getLength(pStr));
+    pStr[i] = c;
+}
+```
 
-Use the built-in continuous integration in GitLab.
+The print function will iterate over each character in pStr and print it to the console.
+```c++
+void my_string::print() const
+{
+    //print each character to console
+    for (int i = 0; i < getLength(pStr); i++){
+        cout << pStr[i];
+    }
+    cout << endl;
+}
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+I also have a getLength function to determine the length of the string. This will take a char pointer as a parameter and iterate over each character until a null character is reached. It will increment a variable each time and return the resulting length.
+```c++
+int my_string::getLength(const char* s) const
+{
+    if (s == 0) { return 0; }
 
-***
+    int i;
+    //increment i until null character is reached
+    for (i = 0; s[i] != '\0'; i++) { /* do nothing */ }
+    return i;
+}
+```
 
-# Editing this README
+I then created another file 'test_string.cpp' and created in the main function I tested the my_string class.
+```c++
+my_string s("Hello world");
+s.print();
+{
+    my_string t = s;
+    s.print();
+    t.print();
+    cout << s.getChar(1) << endl;
+    s.print();
+    t.print();
+}
+s.setChar(1,'E');
+s.print();
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+You can see the output of this running below.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
+## Task 2
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+For task 2 I added functionality to track the reference count of the object. To do this I used an integer pointer that would be allocated memory using the 'new' keyword and set the value to 1 due to it being the first of this object upon the constructor being called. However if the copy constructor or assignment operator were to be called then it would instead just copy the pointer and increment the deferenced value of it as there would already be another object for one of these to be called. When one of the object goes out of scope and the destructor is then it will decrement the dereferenced pointer as a reference is being destroyed. While the is a reference to the object the allocated memory for the pointer will be there and will not be deleted. However if the reference count is 0 then the memory should be freed. To do this, inside the destructor there is an if statement that if the reference count reaches 0 then using the 'delete' keyword the memory to the pointer will be freed.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Task 3
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+In this task I will demonstrate when there is a reference count of 0.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Task 4
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+For task 4 I have created a container for referencing. To do this I have created a template class that uses the same method as before, however just implemented in another class. This can be used by inheriteing this referencing class.
