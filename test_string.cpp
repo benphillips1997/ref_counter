@@ -1,9 +1,9 @@
 #include "my_string.hpp"
-#include "my_string.cpp"
+#include "ref_counter.hpp"
 
 
 int main() 
-{
+{  
     my_string s("Hello world");
     s.print();
     {

@@ -109,6 +109,7 @@ s.print();
 ```
 
 You can see the output of this running below.
+![Task 1 my_string output](images/task1_my_string_test_output.png)
 
 
 ## Task 2
