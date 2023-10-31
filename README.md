@@ -23,6 +23,7 @@ public:
 };
 ```
 
+
 If the default constructor is called then a null pointer is assigned, whereas if the normal constructor is called then it will allocate memory equal to the length of the characters  of the passed parameter for the pStr variable. Then it will copy each letter from the parameter passed to the pStr variable, as you can see below.
 ```c++
 my_string::my_string(const char* s)
@@ -34,6 +35,7 @@ my_string::my_string(const char* s)
     }
 }
 ```
+
 
 The copy constructor will be called when a my_string object is created and assigned to an existing my_string object. It copies the pStr pointer from the existing object that is passed as the parameter and assigns it to the pStr pointer for this object that is created.
 
@@ -47,10 +49,11 @@ my_string& my_string::operator=(const my_string& s)
         return *this; 
     }
 
-    pStr = s.pStr;
+    pStr = s.pStr; //copy reference
     return *this;
 } 
 ```
+
 
 The getChar and setChar functions will return the character or change the character at the specified index.
 ```c++
@@ -67,6 +70,7 @@ void my_string::setChar(const int& i, const char& c)
 }
 ```
 
+
 The print function will iterate over each character in pStr and print it to the console.
 ```c++
 void my_string::print() const
@@ -78,6 +82,7 @@ void my_string::print() const
     cout << endl;
 }
 ```
+
 
 I also have a getLength function to determine the length of the string. This will take a char pointer as a parameter and iterate over each character until a null character is reached. It will increment a variable each time and return the resulting length.
 ```c++
@@ -92,7 +97,8 @@ int my_string::getLength(const char* s) const
 }
 ```
 
-I then created another file 'test_string.cpp' and created in the main function I tested the my_string class.
+
+I then created another file 'test_string.cpp' and in the main function I tested the my_string class using the code below.
 ```c++
 my_string s("Hello world");
 s.print();
@@ -108,20 +114,179 @@ s.setChar(1,'E');
 s.print();
 ```
 
+
 You can see the output of this running below.
-![Task 1 my_string output](images/task1_my_string_test_output.png)
+
+![Task 1 my_string test output](images/task1_my_string_test_output.png)
 
 
 ## Task 2
 
-For task 2 I added functionality to track the reference count of the object. To do this I used an integer pointer that would be allocated memory using the 'new' keyword and set the value to 1 due to it being the first of this object upon the constructor being called. However if the copy constructor or assignment operator were to be called then it would instead just copy the pointer and increment the deferenced value of it as there would already be another object for one of these to be called. When one of the object goes out of scope and the destructor is then it will decrement the dereferenced pointer as a reference is being destroyed. While the is a reference to the object the allocated memory for the pointer will be there and will not be deleted. However if the reference count is 0 then the memory should be freed. To do this, inside the destructor there is an if statement that if the reference count reaches 0 then using the 'delete' keyword the memory to the pointer will be freed.
+For task 2 I added functionality to track the reference count of a my_string object. To do this I added an integer pointer variable called pRefCount that will be used to keep track. In the default and normal constructors it will now allocate memory for pRefCount and set the value to one. For the copy constructor the reference to the pRefCount will now be copied as well as the pStr reference and then pRefCount will be incremented.
+```c++
+class my_string
+{
+private:
+    char *pStr;
+    int *pRefCount;
+public:
+    my_string() : pStr(nullptr), pRefCount(new int(1)) {}  //default constructor
+    my_string(const char* s);  //normal constructor
+    my_string(const my_string& s) : pStr(s.pStr), pRefCount(s.pRefCount) { *pRefCount += 1; }  //copy constructor
+    my_string& operator=(const my_string& s);  //assignment operator overload
+    ~my_string();
+    
+    char getChar(const int& i);
+    void setChar(const int& i, const char& c);
+    void print() const;
+
+    int getLength(const char* str) const;
+};
+```
+
+Below is the line of code I added to the normal constructor.
+```c++
+pRefCount = new int(1); //allocated memory for ref count pointer and set to 1
+```
+
+
+For the overload assignment operator I added functionality so that if the pStr is currently pointing at a different reference, then the reference count will first be decremented as it is going to be reassigned. After this it will check if the reference count is 0 and if it is then it will free the memory for pRefCount and pStr. Then it will copy the reference to pRefCount and pStr and increment the reference count.
+```c++
+my_string& my_string::operator=(const my_string& s)
+{
+    // if object is the same or pointing to the same allocated data
+    if (&s == this || s.pStr == pStr) {
+        return *this;
+    }
+
+    // if object is pointing to different allocated data
+    if (s.pStr != pStr) {
+        *pRefCount -= 1;
+        //if there are no references to the object then the memory can be freed
+        if (*pRefCount == 0) { 
+            delete pRefCount;
+            delete pStr;
+        }
+    }
+
+    //copy and increment reference count
+    pRefCount = s.pRefCount;
+    *pRefCount += 1;
+
+    pStr = s.pStr; //copy reference
+    return *this;
+} 
+```
+
+
+I have also implemented the destructor. This will decrement the reference count when it is called and free up the memory if there are no references left.
+```c++
+my_string::~my_string()
+{
+    assert(*pRefCount > 0);
+
+    *pRefCount -= 1;
+
+    //if there are no references to the object then free the memory
+    if (*pRefCount == 0) {
+        delete pRefCount;
+        delete pStr;
+    }
+}
+```
+
+
+To be able to display the reference count I have also changed the last line of code in my print function.
+```c++
+cout << " [" << *pRefCount << "]" << endl;
+```
+
+
+Now when I run my program it will display the reference count of the object. Below you can see the output using the same code from task 1.
+
+![Test 2 my_string reference counting output](images/task2_ref_count_output.png)
 
 
 ## Task 3
 
-In this task I will demonstrate when there is a reference count of 0.
+For this task I added functionality to show when there is a reference count of 0. In the overload assignment operator I added code to show if an object was reassigned and used my print function to show if it now had a reference count of 0. I also added code to show if it was the same object or had the same reference.
+```c++
+my_string& my_string::operator=(const my_string& s)
+{
+    // if object is the same or pointing to the same allocated data
+    if (&s == this || s.pStr == pStr) {
+        cout << "Same reference" << endl;
+        return *this;
+    }
+
+    // if object is pointing to different allocated data
+    if (s.pStr != pStr) {
+        cout << "Reassigned" << endl;
+        *pRefCount -= 1;
+        //if there are no references to the object then the memory can be freed
+        if (*pRefCount == 0) {
+            print();
+            delete pRefCount;
+            delete pStr;
+        }
+    }
+
+    //copy and increment reference count
+    pRefCount = s.pRefCount;
+    *pRefCount += 1;
+
+    pStr = s.pStr; //copy reference
+    return *this;
+} 
+```
+
+
+In the destructor I also added code to show when the destructor was called and then my print function would be called if it now had a reference count of 0.
+```c++
+my_string::~my_string()
+{
+    cout << "Destructor called" << endl;
+
+    assert(*pRefCount > 0);
+
+    *pRefCount -= 1;
+    //if there are no references to the object then free the memory
+    if (*pRefCount == 0) {
+        print();
+        delete pRefCount;
+        delete pStr;
+    }
+}
+```
+
+
+To show this, I first used the same code from before. You can see the output below.
+
+![Task 3 reference count of 0 output](images/task3_output1)
+
+
+Then I changed the code a bit to test the rest of it.
+```c++
+my_string s("First object");
+s.print();
+{
+    my_string t("Second object");
+    s.print();
+    t.print();
+    s = t;
+    s.print();
+    t.print();
+    s = s;
+    s = t;
+}
+s.print();
+```
+
+
+This was the output.
+
+![Task 3 output 2](images/task3_output2)
 
 
 ## Task 4
 
-For task 4 I have created a container for referencing. To do this I have created a template class that uses the same method as before, however just implemented in another class. This can be used by inheriteing this referencing class.
