@@ -368,7 +368,7 @@ cout << *i;
 i.printRefCount();
 ```
 
-![Task 4 ref_counter int test output](images/task_4_ref_counter_int_tests)
+![Task 4 ref_counter int test output](images/task_4_ref_counter_int_tests.png)
 
 <br/>
 
