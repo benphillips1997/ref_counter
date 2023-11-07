@@ -275,7 +275,7 @@ my_string::~my_string()
 
 To show this, I first used the same code from before. You can see the output below.
 
-![Task 3 reference count of 0 output](images/task3_output1)
+![Task 3 reference count of 0 output](images/task_3_output1.png)
 
 <br/>
 
@@ -300,8 +300,125 @@ s.print();
 
 This was the output.
 
-![Task 3 output 2](images/task3_output2)
+![Task 3 output 2](images/task_3_output2.png)
 
 
 ## Task 4
 
+For task 4 I implemented a template class that can be used by any type to reference count. This can be found in the ref_counter.hpp file. It has 2 pointer variables; pRefCount to track the count and pType for the pointer to the type that is passed in. The code for the constructors and the assignment operator overload is the same or very similar to the reference counting code from the my_string class. The only real difference is the normal constructor that just takes a pointer and assigns pType to it. This would however mean that when creating a new ref_count you would have to pass in a pointer for the type, but it is likely better than constructing inside the class as you would need to pass in many more parameters for creating the type.
+```c++
+ref_counter(T* t) : pRefCount(new int(1)), pType(t) {}  // normal constructor
+```
+
+<br/>
+
+I also overloaded the dereference and member access operators to make it easier to directly access the type that is contained in the ref_counter object.
+```c++
+T& operator*() { return *pType; }  // dereference operator overload
+T* operator->() { return pType; }  // member access operator overload
+```
+
+<br/>
+
+In the test_string.cpp file I tested the ref_counter class using some different types. Below you can see the code I used and the output.
+```c++
+ref_counter<int> i(new int(55));
+cout << *i << endl;
+
+ref_counter<string> str(new string("String"));
+cout << *str << endl;
+
+ref_counter<my_string> my_str(new my_string("Hello world"));
+my_str->print();
+```
+
+![Task 4 ref_counter output](images/task_4_output_1.png)
+
+<br/>
+
+I first tested the ref_counter class some more using the int type.
+```c++
+ref_counter<int> i(new int(55));
+cout << *i;
+i.printRefCount();
+{
+    ref_counter<int> j(new int(10));
+    cout << *j;
+    j.printRefCount();
+    {
+        ref_counter<int> k = j;
+        cout << *k;
+        k.printRefCount();
+        cout << *j;
+        j.printRefCount();
+    }
+    cout << *j;
+    j.printRefCount();
+    j = j;
+    j = i;
+    cout << *i;
+    i.printRefCount();
+    cout << *j;
+    j.printRefCount();
+}
+cout << *i;
+i.printRefCount();
+*i = 40;
+cout << *i;
+i.printRefCount();
+```
+
+![Task 4 ref_counter int test output](images/task_4_ref_counter_int_tests)
+
+<br/>
+
+I then removed all the reference counting functionality from the my_string class as it will all be done by the ref_counter class. Then I reworked the tests I used before for my_string so they could be used for a my_string reference counted object. For better looking output I commented out the 'cout << endl' at the end of the my_string print function so you can see the reference count on the same line.
+```c++
+ref_counter<my_string> s(new my_string("Hello world"));
+s->print();
+cout << " [" << s.getRefCount() << "]" << endl;
+{
+    ref_counter<my_string> t = s;
+    s->print();
+    s.printRefCount();
+    t->print();
+    t.printRefCount();
+    cout << s->getChar(1) << endl;
+    s->print();
+    s.printRefCount();
+    t->print();
+    t.printRefCount();
+}
+s->setChar(1, 'E');
+s->print();
+s.printRefCount();
+```
+
+![Task 4 my_string refernce counted test output](images/task_4_ref_counter_my_string_test1.png)
+
+<br/>
+
+And here is the second my_string test reworked.
+```c++
+ref_counter<my_string> s(new my_string("First object"));
+s->print();
+s.printRefCount();
+{
+    ref_counter<my_string> t(new my_string("Second object"));
+    s->print();
+    s.printRefCount();
+    t->print();
+    t.printRefCount();
+    s = t;
+    s->print();
+    s.printRefCount();
+    t->print();
+    t.printRefCount();
+    s = s;
+    s = t;
+}
+s->print();
+s.printRefCount();
+```
+
+![Task 4 my_string refernce counted test output 2](images/task_4_ref_counter_my_string_test2.png)

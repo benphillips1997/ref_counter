@@ -20,13 +20,6 @@ my_string& my_string::operator=(const my_string& s)
 
     pStr = s.pStr;
     return *this;
-} 
-
-// destructor
-my_string::~my_string()
-{
-    //cout << "Destructor called for: ";
-    //print();
 }
 
 char my_string::getChar(const int& i)
@@ -47,7 +40,7 @@ void my_string::print() const
     for (int i = 0; i < getLength(pStr); i++){
         cout << pStr[i];
     }
-    cout << endl;
+    //cout << endl;
 }
 
 int my_string::getLength(const char* s) const
