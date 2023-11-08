@@ -266,7 +266,7 @@ This was the output.
 
 ## Task 4
 
-For task 4 I implemented a template class that can be used by any type to reference count. This can be found in the ref_counter.hpp file. It has 2 pointer variables; pRefCount to track the count and pType for the pointer to the type that is passed in. The code for the constructors and the assignment operator overload is the same or very similar to the reference counting code from the my_string class. The only real difference is the normal constructor that just takes a pointer and assigns pType to it. This would however mean that when creating a new ref_count you would have to pass in a pointer for the type, but it is likely better than constructing inside the class as you would need to pass in many more parameters for creating the type.
+For task 4 I implemented a template class that can be used by any type to reference count. This can be found in the 'ref_counter.hpp' file. It has 2 pointer variables; pRefCount to track the count and pType for the pointer to the type that is passed in. The code for the constructors and the assignment operator overload is the same or very similar to the reference counting code from the my_string class. The only real difference is the normal constructor that just takes a pointer and assigns pType to it. This would however mean that when creating a new ref_count you would have to pass in a pointer for the type, but it is likely better than constructing inside the class as you would need to pass in many more parameters for creating the type.
 ```c++
 ref_counter(T* t) : pRefCount(new int(1)), pType(t) {}  // normal constructor
 ```
@@ -294,6 +294,13 @@ my_str->print();
 ```
 
 ![Task 4 ref_counter output](images/task_4_output_1.png)
+
+<br/>
+
+I added a printRefCount function to make it simpler to show to reference count when testing.
+```c++
+void printRefCount() const { cout << " [" << getRefCount() << "]" << endl; }
+```
 
 <br/>
 
