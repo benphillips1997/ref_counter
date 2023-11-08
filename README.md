@@ -25,7 +25,7 @@ public:
 
 <br/>
 
-If the default constructor is called then a null pointer is assigned, whereas if the normal constructor is called then it will allocate memory equal to the length of the characters  of the passed parameter for the pStr variable. Then it will copy each letter from the parameter passed to the pStr variable, as you can see below.
+If the default constructor is called then a null pointer is assigned, whereas if the normal constructor is called then it will allocate memory equal to the length of the characters of the passed parameter for the pStr variable. Then it will copy each letter from the parameter passed to the pStr variable, as you can see below.
 ```c++
 my_string::my_string(const char* s)
 {
@@ -220,56 +220,17 @@ Now when I run my program it will display the reference count of the object. Bel
 
 ## Task 3
 
-For this task I added functionality to show when there is a reference count of 0. In the overload assignment operator I added code to show if an object was reassigned and used my print function to show if it now had a reference count of 0. I also added code to show if it was the same object or had the same reference.
+For this task I added functionality to show when there is a reference count of 0. In the overload assignment operator I added some cout statements to print to the console if an object was the same or had the same reference. I also added a cout statement to show if it was reassigned and added a call to my print function if the reference count went to 0, so it would print the name of the string and 0 next to it.
 ```c++
-my_string& my_string::operator=(const my_string& s)
-{
-    // if object is the same or pointing to the same allocated data
-    if (&s == this || s.pStr == pStr) {
-        cout << "Same reference" << endl;
-        return *this;
-    }
-
-    // if object is pointing to different allocated data
-    if (s.pStr != pStr) {
-        cout << "Reassigned" << endl;
-        *pRefCount -= 1;
-        //if there are no references to the object then the memory can be freed
-        if (*pRefCount == 0) {
-            print();
-            delete pRefCount;
-            delete pStr;
-        }
-    }
-
-    //copy and increment reference count
-    pRefCount = s.pRefCount;
-    *pRefCount += 1;
-
-    pStr = s.pStr; //copy reference
-    return *this;
-} 
-```
-
-<br/>
-
-In the destructor I also added code to show when the destructor was called and then my print function would be called if it now had a reference count of 0.
-```c++
-my_string::~my_string()
-{
-    cout << "Destructor called" << endl;
-
-    assert(*pRefCount > 0);
-
-    *pRefCount -= 1;
-    //if there are no references to the object then free the memory
-    if (*pRefCount == 0) {
-        print();
-        delete pRefCount;
-        delete pStr;
-    }
+//if there are no references to the object then free the memory
+if (*pRefCount == 0) {
+    print();
+    delete pRefCount;
+    delete pStr;
 }
 ```
+
+In the destructor I also added a cout statement to show when the destructor was called and then a call to my print function if it now had a reference count of 0.
 
 <br/>
 
