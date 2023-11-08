@@ -344,7 +344,7 @@ I then removed all the reference counting functionality from the my_string class
 ```c++
 ref_counter<my_string> s(new my_string("Hello world"));
 s->print();
-cout << " [" << s.getRefCount() << "]" << endl;
+s.printRefCount();
 {
     ref_counter<my_string> t = s;
     s->print();
